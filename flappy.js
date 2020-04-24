@@ -56,9 +56,9 @@ function draw(object1, object2)
 	ctx.beginPath();
 	ctx.clearRect(0, 0, 800, 800);
 	ctx.arc(200, object1.cur_height, 10, 0, 2 * Math.PI);
-	ctx.fillStyle = "#ffffff";
+	ctx.fillStyle = "#ff0000";
 	ctx.lineWidth = 2;
-	ctx.strokeStyle = "#ffffff";
+	ctx.strokeStyle = "#ff0000";
 	ctx.fill();
 	ctx.stroke();
 
@@ -174,7 +174,6 @@ function jump()
 
 		function GameOver()
 		{
-			//before enter tube
 			if(aBall.cur_height >= obstacle[collumn - 1].height_bottom)
 			{
 				if(aBall.cur_height > obstacle[collumn - 1].height_bottom + 2*black_width + top_width)
@@ -239,9 +238,6 @@ function jump()
 							return true;
 				}
 			}
-
-			//after enter tube
-
 
 			return false;
 		}

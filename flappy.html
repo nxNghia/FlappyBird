@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>falling...</title>
+	<style type="text/css">
+		#box
+		{
+			text-align: center;
+		}
+
+		#myCanvas
+		{
+			background-color: #737373;
+		}
+
+		#control
+		{
+			text-align: center;
+		}
+
+		#btn
+		{
+			border: none;
+			width: 100px;
+			height: 50px;
+			margin-top: 25px;
+			margin-left: 10px;
+			margin-right: 10px;
+			background-color: #009900;
+			color: #ffffff;
+			font-size: 25px;
+		}
+	</style>
+</head>
+<body>
+	<div id="box">
+		<canvas id="myCanvas" width="800" height="800"></canvas>
+	</div>
+	<div id="control">
+		<button id="btn" onclick="jump()">JUMP</button>
+		<button id="btn" onclick="reset()">RESET</button>
+	</div>
+
+	<h1 id="score"></h1>
+	<script src="falling.js"></script>
+</body>
+</html>

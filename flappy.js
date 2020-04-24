@@ -5,6 +5,10 @@ var cont = document.getElementById("score");
 var obstacle = [];
 var collumn = 1;
 var score = 0;
+var black_width = 4;
+var top_width = 40;
+var finished = false;
+var t = 1;
 
 function Ball(height, vel_up, gravity)
 {
@@ -44,22 +48,8 @@ ctx.strokeStyle = "#ffffff";
 ctx.fill();
 ctx.stroke();
 
-ctx.beginPath();
-for (var i = obstacle.length - 1; i >= 0; i--)
-{
-	ctx.fillStyle = "#000000";
-	ctx.fillRect(obstacle[i].x + 5, obstacle[i].height_bottom + 48, 90, 800 - obstacle[i].height_bottom - 48);
-	ctx.fillRect(obstacle[i].x, obstacle[i].height_bottom, 100, 48);
-	ctx.fillRect(obstacle[i].x + 5, 0, 90, obstacle[i].height_top - 48);
-	ctx.fillRect(obstacle[i].x, obstacle[i].height_top - 48, 100, 48);
-
-	ctx.fillStyle = "#009900";
-	ctx.fillRect(obstacle[i].x + 4, obstacle[i].height_bottom + 4, 100 - 8, 40);
-	ctx.fillRect(obstacle[i].x + 4 + 5, obstacle[i].height_bottom + 4 + 44, 100 - 8 - 10, 800 - obstacle[i].height_bottom - 4 - 40);
-	ctx.fillRect(obstacle[i].x + 4 + 5, 0, 82, obstacle[i].height_top - 8 - 40);
-	ctx.fillRect(obstacle[i].x + 4, obstacle[i].height_top - 40 - 4 , 92, 40);
-}
-ctx.stroke();
+if(finished == false)
+	draw(aBall, obstacle);
 
 function draw(object1, object2)
 {
@@ -75,22 +65,38 @@ function draw(object1, object2)
 	ctx.beginPath();
 	for (var i = object2.length - 1; i >= 0; i--)
 	{
-		ctx.fillStyle = "#000000";
-		ctx.fillRect(object2[i].x + 5, object2[i].height_bottom + 48, 90, 800 - object2[i].height_bottom - 48);
-		ctx.fillRect(object2[i].x, object2[i].height_bottom, 100, 48);
-		ctx.fillRect(object2[i].x + 5, 0, 90, object2[i].height_top - 48);
-		ctx.fillRect(object2[i].x, obstacle[i].height_top - 48, 100, 48);
+		ctx.fillStyle = "#000000";	//black color
+		//top of tube
+		ctx.fillRect(object2[i].x, object2[i].height_bottom, 100, 2*black_width + top_width);
+		ctx.fillRect(object2[i].x, obstacle[i].height_top - 2*black_width - top_width, 100, top_width + 2*black_width);
+		//below of tube
+		ctx.fillRect(object2[i].x + 5, object2[i].height_bottom + top_width + 2*black_width, 90, 800 - object2[i].height_bottom - 2*black_width - top_width);
+		ctx.fillRect(object2[i].x + 5, 0, 90, object2[i].height_top - top_width - 2*black_width);
 		
-		ctx.fillStyle = "#009900";
-		ctx.fillRect(object2[i].x + 4, object2[i].height_bottom + 4, 100 - 8, 40);
-		ctx.fillRect(object2[i].x + 4 + 5, object2[i].height_bottom + 4 + 44, 100 - 8 - 10, 800 - object2[i].height_bottom - 4 - 40);
-		ctx.fillRect(object2[i].x + 4 + 5, 0, 82, object2[i].height_top - 8 - 40);
-		ctx.fillRect(object2[i].x + 4, object2[i].height_top - 40 - 4 , 92, 40);
+		ctx.fillStyle = "#009900";	//green3 color
+		ctx.fillRect(object2[i].x + black_width, object2[i].height_bottom + black_width, 100 - 2*black_width, top_width);
+		ctx.fillRect(object2[i].x + black_width, object2[i].height_top - top_width - black_width , 100 - 2*black_width, top_width);
+
+		ctx.fillRect(object2[i].x + black_width + 5, object2[i].height_bottom + 2*black_width + top_width, 100 - 10 - 2*black_width, 800 - object2[i].height_bottom - black_width - top_width);
+		ctx.fillRect(object2[i].x + black_width + 5, 0, 100 - 10 - 2*black_width, object2[i].height_top - 2*black_width - top_width);
+
+		ctx.fillStyle = "#00ff00";	//green2 color
+		ctx.fillRect(object2[i].x + black_width, object2[i].height_bottom + black_width, 10, top_width);
+		ctx.fillRect(object2[i].x + black_width, object2[i].height_top - top_width - black_width, 10, top_width);
+
+		ctx.fillRect(object2[i].x + black_width + 5, object2[i].height_bottom + top_width + 2*black_width, 10, 800 - object2[i].height_bottom - top_width - black_width);
+		ctx.fillRect(object2[i].x + black_width + 5, 0, 10, object2[i].height_top - top_width - 2*black_width);
+
+		ctx.fillStyle = "#00cc00";	//green1 color
+		ctx.fillRect(object2[i].x + black_width + 10, object2[i].height_bottom + black_width, 10, top_width);
+		ctx.fillRect(object2[i].x + black_width + 10, object2[i].height_top - top_width - black_width, 10, top_width);
+
+		ctx.fillRect(object2[i].x + black_width + 5 + 10, object2[i].height_bottom + top_width + 2*black_width, 10, 800 - object2[i].height_bottom - top_width - black_width);
+		ctx.fillRect(object2[i].x + black_width + 5 + 10, 0, 10, object2[i].height_top - top_width - 2*black_width);
 	}
 	ctx.stroke();
 }
 
-var t = 1;
 document.onkeydown = function(envent)
 {
 	if(envent.keyCode == 32)
@@ -101,7 +107,6 @@ document.onkeydown = function(envent)
 	}
 }
 
-var finished = false;
 
 function reset()
 {
@@ -126,14 +131,11 @@ function reset()
 	draw(aBall, obstacle);
 }
 
-
-
 function jump()
 {
 	if(finished == false)
 	{
 		finished = true;
-		var _frame = 0;
 		var id = setInterval(frame, 30);
 		function frame()
 		{
@@ -148,7 +150,7 @@ function jump()
 				draw(aBall, obstacle);
 				if(obstacle[collumn - 1].x + 50 == 200)
 					++score;
-				if(obstacle[collumn - 1].x + 100 == 200)
+				if(obstacle[collumn - 1].x + 100 + 10 == 200)
 					++collumn;
 				if(collumn > obstacle.length)
 					collumn = 1;
@@ -160,7 +162,7 @@ function jump()
 		{
 			if(obstacle[collumn - 1].x <= 200 && obstacle[collumn - 1].x >= 100)
 			{
-				if(aBall.cur_velocity < 0)
+				if(aBall.velocity_up - aBall.gravity * t < 0)
 					t = aBall.velocity_up + Math.sqrt(aBall.velocity_up**2 - 4 * (aBall.height - obstacle[collumn - 1].height_bottom + 10));
 				else
 					t = aBall.velocity_up + Math.sqrt(aBall.velocity_up**2 - 4 * (aBall.height - obstacle[collumn - 1].height_top - 10));
@@ -172,57 +174,74 @@ function jump()
 
 		function GameOver()
 		{
-			if(aBall.cur_height <= 10 || aBall.cur_height >= 780)
-				return true;
-
-			if(obstacle[collumn - 1].x >= 100 && obstacle[collumn - 1].x <= 200)
+			//before enter tube
+			if(aBall.cur_height >= obstacle[collumn - 1].height_bottom)
 			{
-				if(aBall.cur_height <= obstacle[collumn - 1].height_top + 10 || aBall.cur_height >= obstacle[collumn - 1].height_bottom - 10)
+				if(aBall.cur_height > obstacle[collumn - 1].height_bottom + 2*black_width + top_width)
 				{
-					return true;
+					if(aBall.cur_height >= 790)
+						return true;
+
+					if(200 + 10 >= obstacle[collumn - 1].x + 5)
+						return true;
+				}else{
+					if(200 + 10 >= obstacle[collumn - 1].x)
+						return true;
+
+					var dis = (aBall.cur_height - obstacle[collumn - 1].height_bottom)**2 + (obstacle[collumn - 1].x - 200)**2;
+					if(dis <= 100)
+						return true;
+
+					dis = (aBall.cur_height - (obstacle[collumn - 1].height_bottom + 2*black_width + top_width))**2 + (obstacle[collumn - 1].x - 200)**2;
+					if(dis <= 100)
+						return true;
 				}
 			}else{
-				if(aBall.cur_height >= obstacle[collumn - 1].height_bottom || aBall.cur_height <= obstacle[collumn - 1].height_top)
+				if(aBall.cur_height <= obstacle[collumn - 1].height_top)
 				{
-					if(obstacle[collumn - 1].x - 5 <= 200)
+					if(aBall.cur_height < obstacle[collumn - 1].height_bottom - 2*black_width - top_width)
 					{
-						return true;
+						if(aBall.cur_height <= 10)
+							return true;
+
+						if(200 + 10 >= obstacle[collumn - 1].x + 5)
+							return true;
+					}else{
+						if(200 + 10 >= obstacle[collumn - 1].x)
+							return true;
+
+						var dis = (aBall.cur_height - obstacle[collumn - 1].height_top)**2 + (obstacle[collumn - 1].x - 200)**2;
+						if(dis <= 100)
+							return true;
+
+						dis = (aBall.cur_height - (obstacle[collumn - 1].height_top + 2*black_width + top_width))**2 + (obstacle[collumn - 1].x - 200)**2;
+						if(dis <= 100)
+							return true;
 					}
 				}else{
-					if(aBall.cur_height < obstacle[collumn - 1].height_bottom && aBall.cur_height > obstacle[collumn - 1].height_top)
+					if(200 >= obstacle[collumn - 1].x && 200 <= obstacle[collumn - 1].x + 100)
 					{
-						var distance = (obstacle[collumn - 1].x - 200)**2 + (aBall.cur_height - obstacle[collumn - 1].height_bottom)**2;
-						if(distance <= 100)
-						{
+						if(aBall.cur_height + 10 >= obstacle[collumn - 1].height_bottom || aBall.cur_height - 10 <= obstacle[collumn - 1].height_top)
 							return true;
-						}
-						
-						distance = (obstacle[collumn - 1].x - 200)**2 + (aBall.cur_height - obstacle[collumn - 1].height_top)**2;
-						if(distance <= 100)
-						{
+
+						var dis = (aBall.cur_height - obstacle[collumn - 1].height_top)**2 + (obstacle[collumn - 1].x + 100 - 200)**2;
+						if(dis <= 100)
 							return true;
-						}
+
+						dis = (aBall.cur_height - obstacle[collumn - 1].height_bottom)**2 + (obstacle[collumn - 1].x + 100 - 200)**2;
+						if(dis <= 100)
+							return true;
 					}
+
+					if(200 - 10 < obstacle[collumn - 1].x + 100)
+						var dis = (aBall.cur_height - obstacle[collumn - 1].height_bottom)**2 + (obstacle[collumn - 1].x + 100 - 200)**2;
+						if(dis <= 100)
+							return true;
 				}
 			}
-			if(collumn > 1)
-			{
-				var distance = (obstacle[collumn - 2].x + 100 - 200)**2 + (aBall.cur_height - obstacle[collumn - 2].height_bottom)**2;
-				if(distance <= 100)
-					return true;
-				
-				distance = (obstacle[collumn - 2].x + 100 - 200)**2 + (aBall.cur_height - obstacle[collumn - 2].height_top)**2;
-				if(distance <= 100)
-					return true;
-			}else{
-				var distance = (obstacle[4].x + 100 - 200)**2 + (aBall.cur_height - obstacle[4].height_bottom)**2;
-				if(distance <= 100)
-					return true;
-				
-				distance = (obstacle[4].x + 100 - 200)**2 + (aBall.cur_height - obstacle[4].height_top)**2;
-				if(distance <= 100)
-					return true;
-			}
+
+			//after enter tube
+
 
 			return false;
 		}

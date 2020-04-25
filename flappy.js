@@ -11,13 +11,13 @@ var t = 1;
 var R = 20;
 var width = cv.width;
 var height = cv.height;
-var img = new Image();
+var bird = new Image();
 var cloud = new Image();
 var bush = new Image();
 var rip = new Image();
 var running = false;
-img.src = "images.png";
-cloud.src = "index.png";
+bird.src = "bird.png";
+cloud.src = "cloud.png";
 bush.src = "bush.png";
 rip.src = "rip.png";
 
@@ -60,13 +60,12 @@ window.onload = function init()
 function drawBird(Bird)
 {
 	ctx.clearRect(0, 0, width, height);
-	ctx.drawImage(img, 200 - R, Bird.cur_height - R, 2*R, 2*R);
+	ctx.drawImage(bird, 200 - R, Bird.cur_height - R, 2*R, 2*R);
 }
 
 function drawThings(object)
 {
 	ctx.beginPath();
-	//ctx.clearRect(0, 0, width, height);
 	ctx.drawImage(cloud, 10, 100, 150, 150);
 	ctx.drawImage(cloud, 250, 300, 150, 150);
 	ctx.drawImage(cloud, 360, 100, 150, 150);
@@ -196,7 +195,7 @@ function jump()
 			}
 		}
 
-		var tmp_R = 0;
+		var wave_R = 0;
 
 		function EndGame()
 		{
@@ -204,19 +203,17 @@ function jump()
 			drawBird(Bird);
 			drawThings(obstacle);
 			ctx.beginPath();
-			ctx.arc(200, Bird.cur_height, tmp_R, 0, 2 * Math.PI);
+			ctx.arc(200, Bird.cur_height, wave_R, 0, 2 * Math.PI);
 			ctx.fillStyle = "#ffffff";
 			ctx.fill();
 			ctx.stroke();
-			tmp_R += 200;
+			wave_R += 200;
 
-			if(tmp_R <= 1000)
+			if(wave_R <= 1000)
 				requestAnimationFrame(EndGame);
 			else
 				fallDown();
 		}
-
-		var tmp_t = 1;
 
 		function fallDown()
 		{

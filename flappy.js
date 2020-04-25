@@ -21,7 +21,6 @@ cloud.src = "cloud.png";
 bush.src = "bush.png";
 rip.src = "rip.png";
 
-
 function Ball(height, vel_up, gravity)
 {
 	this.height = height;
@@ -118,7 +117,6 @@ function drawThings(object)
 	ctx.fillStyle = "#009900";
 	ctx.fillRect(0, 700 + black_width / 2, width, height - 700 - black_width / 2);
 	ctx.stroke();
-
 }
 
 document.onkeydown = function(envent)
@@ -130,7 +128,6 @@ document.onkeydown = function(envent)
 		Bird.height = Bird.cur_height;
 	}
 }
-
 
 function reset()
 {
@@ -145,7 +142,6 @@ function reset()
 	score = 0;
 	collumn = 1;
 	t = 0;
-
 
 	for (var i = obstacle.length - 1; i >= 0; i--)
 	{

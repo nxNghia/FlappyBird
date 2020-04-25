@@ -1,14 +1,26 @@
 var cv = document.getElementById("myCanvas");
 var ctx = cv.getContext("2d");
-var obs = cv.getContext("2d");
 var cont = document.getElementById("score");
 var obstacle = [];
 var collumn = 1;
 var score = 0;
 var black_width = 4;
 var top_width = 40;
-var finished = false;
+var begin = false;
 var t = 1;
+var R = 20;
+var width = cv.width;
+var height = cv.height;
+var img = new Image();
+var cloud = new Image();
+var bush = new Image();
+var rip = new Image();
+var running = false;
+img.src = "images.png";
+cloud.src = "index.png";
+bush.src = "bush.png";
+rip.src = "rip.png";
+
 
 function Ball(height, vel_up, gravity)
 {
@@ -18,7 +30,7 @@ function Ball(height, vel_up, gravity)
 	this.cur_velocity = vel_up;
 	this.gravity = gravity;
 }
-var aBall = new Ball(400, 20, 2);
+var Bird = new Ball(400, 20, 2);
 
 function box(height_bottom, x)
 {
@@ -39,87 +51,102 @@ obstacle.push(box3);
 obstacle.push(box4);
 obstacle.push(box5);
 
-ctx.beginPath();
-ctx.clearRect(0, 0, 800, 800);
-ctx.arc(200, aBall.cur_height, 10, 0, 2 * Math.PI);
-ctx.fillStyle = "#ffffff";
-ctx.lineWidth = 2;
-ctx.strokeStyle = "#ffffff";
-ctx.fill();
-ctx.stroke();
+window.onload = function init()
+{
+	drawBird(Bird);
+	drawThings(obstacle);
+}
 
-if(finished == false)
-	draw(aBall, obstacle);
+function drawBird(Bird)
+{
+	ctx.clearRect(0, 0, width, height);
+	ctx.drawImage(img, 200 - R, Bird.cur_height - R, 2*R, 2*R);
+}
 
-function draw(object1, object2)
+function drawThings(object)
 {
 	ctx.beginPath();
-	ctx.clearRect(0, 0, 800, 800);
-	ctx.arc(200, object1.cur_height, 10, 0, 2 * Math.PI);
-	ctx.fillStyle = "#ff0000";
-	ctx.lineWidth = 2;
-	ctx.strokeStyle = "#ff0000";
-	ctx.fill();
-	ctx.stroke();
-
+	//ctx.clearRect(0, 0, width, height);
+	ctx.drawImage(cloud, 10, 100, 150, 150);
+	ctx.drawImage(cloud, 250, 300, 150, 150);
+	ctx.drawImage(cloud, 360, 100, 150, 150);
+	ctx.drawImage(cloud, 600, 150, 150, 150);
+	ctx.drawImage(bush, 0, 650, 150, 50);
+	ctx.drawImage(bush, 450, 600, 200, 100);
+	
 	ctx.beginPath();
-	for (var i = object2.length - 1; i >= 0; i--)
+	for (var i = object.length - 1; i >= 0; i--)
 	{
 		ctx.fillStyle = "#000000";	//black color
 		//top of tube
-		ctx.fillRect(object2[i].x, object2[i].height_bottom, 100, 2*black_width + top_width);
-		ctx.fillRect(object2[i].x, obstacle[i].height_top - 2*black_width - top_width, 100, top_width + 2*black_width);
+		ctx.fillRect(object[i].x, object[i].height_bottom, 100, 2*black_width + top_width);
+		ctx.fillRect(object[i].x, obstacle[i].height_top - 2*black_width - top_width, 100, top_width + 2*black_width);
 		//below of tube
-		ctx.fillRect(object2[i].x + 5, object2[i].height_bottom + top_width + 2*black_width, 90, 800 - object2[i].height_bottom - 2*black_width - top_width);
-		ctx.fillRect(object2[i].x + 5, 0, 90, object2[i].height_top - top_width - 2*black_width);
+		ctx.fillRect(object[i].x + 5, object[i].height_bottom + top_width + 2*black_width, 90, height - object[i].height_bottom - 2*black_width - top_width);
+		ctx.fillRect(object[i].x + 5, 0, 90, object[i].height_top - top_width - 2*black_width);
 		
 		ctx.fillStyle = "#009900";	//green3 color
-		ctx.fillRect(object2[i].x + black_width, object2[i].height_bottom + black_width, 100 - 2*black_width, top_width);
-		ctx.fillRect(object2[i].x + black_width, object2[i].height_top - top_width - black_width , 100 - 2*black_width, top_width);
+		ctx.fillRect(object[i].x + black_width, object[i].height_bottom + black_width, 100 - 2*black_width, top_width);
+		ctx.fillRect(object[i].x + black_width, object[i].height_top - top_width - black_width , 100 - 2*black_width, top_width);
 
-		ctx.fillRect(object2[i].x + black_width + 5, object2[i].height_bottom + 2*black_width + top_width, 100 - 10 - 2*black_width, 800 - object2[i].height_bottom - black_width - top_width);
-		ctx.fillRect(object2[i].x + black_width + 5, 0, 100 - 10 - 2*black_width, object2[i].height_top - 2*black_width - top_width);
+		ctx.fillRect(object[i].x + black_width + 5, object[i].height_bottom + 2*black_width + top_width, 100 - 10 - 2*black_width, height - object[i].height_bottom - black_width - top_width);
+		ctx.fillRect(object[i].x + black_width + 5, 0, 100 - 10 - 2*black_width, object[i].height_top - 2*black_width - top_width);
 
 		ctx.fillStyle = "#00ff00";	//green2 color
-		ctx.fillRect(object2[i].x + black_width, object2[i].height_bottom + black_width, 10, top_width);
-		ctx.fillRect(object2[i].x + black_width, object2[i].height_top - top_width - black_width, 10, top_width);
+		ctx.fillRect(object[i].x + black_width, object[i].height_bottom + black_width, 10, top_width);
+		ctx.fillRect(object[i].x + black_width, object[i].height_top - top_width - black_width, 10, top_width);
 
-		ctx.fillRect(object2[i].x + black_width + 5, object2[i].height_bottom + top_width + 2*black_width, 10, 800 - object2[i].height_bottom - top_width - black_width);
-		ctx.fillRect(object2[i].x + black_width + 5, 0, 10, object2[i].height_top - top_width - 2*black_width);
+		ctx.fillRect(object[i].x + black_width + 5, object[i].height_bottom + top_width + 2*black_width, 10, height - object[i].height_bottom - top_width - black_width);
+		ctx.fillRect(object[i].x + black_width + 5, 0, 10, object[i].height_top - top_width - 2*black_width);
 
 		ctx.fillStyle = "#00cc00";	//green1 color
-		ctx.fillRect(object2[i].x + black_width + 10, object2[i].height_bottom + black_width, 10, top_width);
-		ctx.fillRect(object2[i].x + black_width + 10, object2[i].height_top - top_width - black_width, 10, top_width);
+		ctx.fillRect(object[i].x + black_width + 10, object[i].height_bottom + black_width, 10, top_width);
+		ctx.fillRect(object[i].x + black_width + 10, object[i].height_top - top_width - black_width, 10, top_width);
 
-		ctx.fillRect(object2[i].x + black_width + 5 + 10, object2[i].height_bottom + top_width + 2*black_width, 10, 800 - object2[i].height_bottom - top_width - black_width);
-		ctx.fillRect(object2[i].x + black_width + 5 + 10, 0, 10, object2[i].height_top - top_width - 2*black_width);
+		ctx.fillRect(object[i].x + black_width + 5 + 10, object[i].height_bottom + top_width + 2*black_width, 10, height - object[i].height_bottom - top_width - black_width);
+		ctx.fillRect(object[i].x + black_width + 5 + 10, 0, 10, object[i].height_top - top_width - 2*black_width);
 	}
 	ctx.stroke();
+
+	ctx.beginPath();
+	ctx.strokeStyle = "#000000";
+	ctx.moveTo(0, 700);
+	ctx.lineTo(width, 700);
+	ctx.lineWidth = black_width;
+	ctx.stroke();
+
+	ctx.beginPath();
+	ctx.fillStyle = "#009900";
+	ctx.fillRect(0, 700 + black_width / 2, width, height - 700 - black_width / 2);
+	ctx.stroke();
+
 }
 
 document.onkeydown = function(envent)
 {
-	if(envent.keyCode == 32)
+	if(envent.keyCode == 32 && running)
 	{
 		t = 1;
-		aBall.cur_velocity = aBall.velocity_up;
-		aBall.height = aBall.cur_height;
+		Bird.cur_velocity = Bird.velocity_up;
+		Bird.height = Bird.cur_height;
 	}
 }
 
 
 function reset()
 {
-	ctx.clearRect(0, 0, 800, 800);
-	finished = false;
-	aBall.height = 400;
-	aBall.cur_height = 400;
-	aBall.velocity_up = 20;
-	aBall.cur_velocity = 20;
-	aBall.gravity = 2;
+	ctx.clearRect(0, 0, width, height);
+	begin = false;
+	running = false;
+	Bird.height = 400;
+	Bird.cur_height = 400;
+	Bird.velocity_up = 20;
+	Bird.cur_velocity = 20;
+	Bird.gravity = 2;
 	score = 0;
 	collumn = 1;
 	t = 0;
+
 
 	for (var i = obstacle.length - 1; i >= 0; i--)
 	{
@@ -128,113 +155,166 @@ function reset()
 		obstacle[i].height_top = obstacle[i].height_bottom - 200;
 	}
 
-	draw(aBall, obstacle);
+	drawBird(Bird);
+	drawThings(obstacle);
+	cont.innerHTML = score;
 }
 
 function jump()
 {
-	if(finished == false)
+	if(begin == false)
 	{
-		finished = true;
-		var id = setInterval(frame, 30);
+		begin = true;
+		running = true;
+
+		frame();
+
 		function frame()
 		{
-			if(GameOver())
+			cont.innerHTML = score;
+			update(Bird, t);
+			update2(obstacle);
+			drawBird(Bird);
+			drawThings(obstacle);
+
+			if(obstacle[collumn - 1].x + 50 == 200)
+				++score;
+
+			if(obstacle[collumn - 1].x + 100 + R == 200)
+				++collumn;
+
+			if(collumn > obstacle.length)
+				collumn = 1;
+			t += 0.6;
+
+			if(GameOver() == false)
+				requestAnimationFrame(frame);
+			else
 			{
+				running = false;
 				EndGame();
-				clearInterval(id);
-			}else{
-				cont.innerHTML = score;
-				update2(obstacle);
-				update(aBall, t);
-				draw(aBall, obstacle);
-				if(obstacle[collumn - 1].x + 50 == 200)
-					++score;
-				if(obstacle[collumn - 1].x + 100 + 10 == 200)
-					++collumn;
-				if(collumn > obstacle.length)
-					collumn = 1;
-				++t;
 			}
 		}
 
+		var tmp_R = 0;
+
 		function EndGame()
 		{
-			if(obstacle[collumn - 1].x <= 200 && obstacle[collumn - 1].x >= 100)
+			ctx.clearRect(0, 0, width, height);
+			drawBird(Bird);
+			drawThings(obstacle);
+			ctx.beginPath();
+			ctx.arc(200, Bird.cur_height, tmp_R, 0, 2 * Math.PI);
+			ctx.fillStyle = "#ffffff";
+			ctx.fill();
+			ctx.stroke();
+			tmp_R += 200;
+
+			if(tmp_R <= 1000)
+				requestAnimationFrame(EndGame);
+			else
+				fallDown();
+		}
+
+		var tmp_t = 1;
+
+		function fallDown()
+		{
+			drawBird(Bird);
+			drawThings(obstacle);
+			t += 0.6;
+
+			update(Bird, t);
+
+			if(200 >= obstacle[collumn - 1].x && 200 <= obstacle[collumn - 1].x + 100)
 			{
-				if(aBall.velocity_up - aBall.gravity * t < 0)
-					t = aBall.velocity_up + Math.sqrt(aBall.velocity_up**2 - 4 * (aBall.height - obstacle[collumn - 1].height_bottom + 10));
+				if(Bird.cur_height < obstacle[collumn - 1].height_bottom - R)
+				{
+					requestAnimationFrame(fallDown);
+				}else{
+					drawThings(obstacle);
+					ctx.drawImage(rip, 200 - R, obstacle[collumn - 1].height_bottom - 50, 2 * R, 50);
+				}
+			}
+			else
+			{
+				if(Bird.cur_height <= 700 - R)
+				{
+					requestAnimationFrame(fallDown);
+				}
 				else
-					t = aBall.velocity_up + Math.sqrt(aBall.velocity_up**2 - 4 * (aBall.height - obstacle[collumn - 1].height_top - 10));
-				t /= 2;
-				aBall.cur_height = aBall.height - aBall.velocity_up * t + 0.5 * aBall.gravity * t**2;
-				draw(aBall, obstacle);
+				{
+					ctx.clearRect(0, 0, width, height);
+					drawThings(obstacle);
+					ctx.drawImage(rip, 200 - R, 700 - 50, 2 * R, 50 - black_width / 2);
+					t = 0;
+				}
 			}
 		}
 
 		function GameOver()
 		{
-			if(aBall.cur_height >= obstacle[collumn - 1].height_bottom)
+			if(Bird.cur_height >= obstacle[collumn - 1].height_bottom)
 			{
-				if(aBall.cur_height > obstacle[collumn - 1].height_bottom + 2*black_width + top_width)
+				if(Bird.cur_height > obstacle[collumn - 1].height_bottom + 2*black_width + top_width)
 				{
-					if(aBall.cur_height >= 790)
+					if(Bird.cur_height >= 700 - R)
 						return true;
 
-					if(200 + 10 >= obstacle[collumn - 1].x + 5)
+					if(200 + R >= obstacle[collumn - 1].x + 5)
 						return true;
 				}else{
-					if(200 + 10 >= obstacle[collumn - 1].x)
+					if(200 + R >= obstacle[collumn - 1].x)
 						return true;
 
-					var dis = (aBall.cur_height - obstacle[collumn - 1].height_bottom)**2 + (obstacle[collumn - 1].x - 200)**2;
-					if(dis <= 100)
+					var dis = (Bird.cur_height - obstacle[collumn - 1].height_bottom)**2 + (obstacle[collumn - 1].x - 200)**2;
+					if(dis <= R**2)
 						return true;
 
-					dis = (aBall.cur_height - (obstacle[collumn - 1].height_bottom + 2*black_width + top_width))**2 + (obstacle[collumn - 1].x - 200)**2;
-					if(dis <= 100)
+					dis = (Bird.cur_height - (obstacle[collumn - 1].height_bottom + 2*black_width + top_width))**2 + (obstacle[collumn - 1].x - 200)**2;
+					if(dis <= R**2)
 						return true;
 				}
 			}else{
-				if(aBall.cur_height <= obstacle[collumn - 1].height_top)
+				if(Bird.cur_height <= obstacle[collumn - 1].height_top)
 				{
-					if(aBall.cur_height < obstacle[collumn - 1].height_bottom - 2*black_width - top_width)
+					if(Bird.cur_height < obstacle[collumn - 1].height_top - 2*black_width - top_width)
 					{
-						if(aBall.cur_height <= 10)
+						if(Bird.cur_height <= R)
 							return true;
 
-						if(200 + 10 >= obstacle[collumn - 1].x + 5)
+						if(200 + R >= obstacle[collumn - 1].x + 5)
 							return true;
 					}else{
-						if(200 + 10 >= obstacle[collumn - 1].x)
+						if(200 + R >= obstacle[collumn - 1].x)
 							return true;
 
-						var dis = (aBall.cur_height - obstacle[collumn - 1].height_top)**2 + (obstacle[collumn - 1].x - 200)**2;
-						if(dis <= 100)
+						var dis = (Bird.cur_height - obstacle[collumn - 1].height_top)**2 + (obstacle[collumn - 1].x - 200)**2;
+						if(dis <= R**2)
 							return true;
 
-						dis = (aBall.cur_height - (obstacle[collumn - 1].height_top + 2*black_width + top_width))**2 + (obstacle[collumn - 1].x - 200)**2;
-						if(dis <= 100)
+						dis = (Bird.cur_height - (obstacle[collumn - 1].height_top + 2*black_width + top_width))**2 + (obstacle[collumn - 1].x - 200)**2;
+						if(dis <= R**2)
 							return true;
 					}
 				}else{
 					if(200 >= obstacle[collumn - 1].x && 200 <= obstacle[collumn - 1].x + 100)
 					{
-						if(aBall.cur_height + 10 >= obstacle[collumn - 1].height_bottom || aBall.cur_height - 10 <= obstacle[collumn - 1].height_top)
+						if(Bird.cur_height + R >= obstacle[collumn - 1].height_bottom || Bird.cur_height - 10 <= obstacle[collumn - 1].height_top)
 							return true;
 
-						var dis = (aBall.cur_height - obstacle[collumn - 1].height_top)**2 + (obstacle[collumn - 1].x + 100 - 200)**2;
-						if(dis <= 100)
+						var dis = (Bird.cur_height - obstacle[collumn - 1].height_top)**2 + (obstacle[collumn - 1].x + 100 - 200)**2;
+						if(dis <= R**2)
 							return true;
 
-						dis = (aBall.cur_height - obstacle[collumn - 1].height_bottom)**2 + (obstacle[collumn - 1].x + 100 - 200)**2;
-						if(dis <= 100)
+						dis = (Bird.cur_height - obstacle[collumn - 1].height_bottom)**2 + (obstacle[collumn - 1].x + 100 - 200)**2;
+						if(dis <= R**2)
 							return true;
 					}
 
-					if(200 - 10 < obstacle[collumn - 1].x + 100)
-						var dis = (aBall.cur_height - obstacle[collumn - 1].height_bottom)**2 + (obstacle[collumn - 1].x + 100 - 200)**2;
-						if(dis <= 100)
+					if(200 - R < obstacle[collumn - 1].x + 100)
+						var dis = (Bird.cur_height - obstacle[collumn - 1].height_bottom)**2 + (obstacle[collumn - 1].x + 100 - 200)**2;
+						if(dis <= R**2)
 							return true;
 				}
 			}
@@ -250,13 +330,14 @@ function jump()
 
 		function update2(object)
 		{
-			for (var i = object.length - 1; i >= 0; i--) {
-				object[i].x -= 5;
+			for (var i = object.length - 1; i >= 0; i--)
+			{
+				object[i].x -= 2.5;
 
 				if(object[i].x == -200)
 				{
 					object[i].height = Math.floor(Math.random() * 200 + 400);
-					object[i].x = 800;
+					object[i].x = width;
 				}
 			}
 		}

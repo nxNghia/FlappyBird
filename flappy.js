@@ -1,200 +1,213 @@
 var cv = document.getElementById("myCanvas");
 var ctx = cv.getContext("2d");
-var obstacle = [];
-var collumn = 1;
-var score = 0;
-var black_width = 4;
+var black_width = 4;	//thickness of blackLine
 var top_width = 40;
-var begin = false;
-var t = 10;
-var R = 20;
-var running = false;
-var width = cv.width;
-var height = cv.height;
-var bird = new Image();
-var cloud = new Image();
-var bushh = new Image();
-var rip = new Image();
-var img0 = new Image();
-var img1 = new Image();
-var img2 = new Image();
-var img3 = new Image();
-var img4 = new Image();
-var img5 = new Image();
-var img6 = new Image();
-var img7 = new Image();
-var img8 = new Image();
-var img9 = new Image();
-var num = [];
-bird.src = "image/bird.png";
-cloud.src = "image/cloud.png";
-bushh.src = "image/bush.png";
-rip.src = "image/rip.png";
-img0.src = "image/0.png";
-img1.src = "image/1.png";
-img2.src = "image/2.png";
-img3.src = "image/3.png";
-img4.src = "image/4.png";
-img5.src = "image/5.png";
-img6.src = "image/6.png";
-img7.src = "image/7.png";
-img8.src = "image/8.png";
-img9.src = "image/9.png";
-num.push(img0);
-num.push(img1);
-num.push(img2);
-num.push(img3);
-num.push(img4);
-num.push(img5);
-num.push(img6);
-num.push(img7);
-num.push(img8);
-num.push(img9);
+var t = 10;				//time_variable
+var R = 20;				//Radius of hit box
+var next_tube = 1;	//number of incoming tube
+var start = false;		//game is begin or not
+var running = false;	//tube is running or not
+var score = 0;
+var gravity = 2;
 
-function Bird(height, vel_up, gravity)
+//entities's stat
+var cloud = new Image();	//Cloud object
+var _bush = new Image();
+var rip = new Image();
+var bird = new Array();
+var num = new Array();
+var Bird_color = Math.floor(Math.random()*3) + 1;
+cloud.src = "image/cloud.png";
+_bush.src = "image/bush.png";
+rip.src = "image/rip.png";
+
+for (var i = 0; i < 10; i++)
+{
+	num[i] = new Image();
+	num[i].src = "image/" + i + ".png";
+}
+
+for (var i = 1; i <=3; i++)
+{
+	bird[i-1] = new Image();
+	bird[i-1].src = "image/bird" + i + ".png";
+}
+
+function Bird(height)
 {
 	this.height = height;
-	this.velocity_up = vel_up;
-	this.cur_height = height;
-	this.cur_velocity = vel_up;
-	this.gravity = gravity;
-}
-var fBird = new Bird(400, 20, 2);
+	this.velocity_up = 20;
+	this.cur_height = 300;
 
-Bird.cur_height = 300;
+	this.update = function()
+	{
+		this.cur_height = this.height - this.velocity_up * t + 0.5 * gravity * t**2;
+	}
+
+	this.draw = function()
+	{
+		ctx.clearRect(0, 0, cv.width, cv.height);
+		ctx.save();
+		ctx.translate(200, this.cur_height);
+		ctx.rotate(Math.atan(2*t - this.velocity_up) * (this.cur_height - (this.height - 100))/(800 - this.height + 100));
+		ctx.translate(-200, -(this.cur_height));
+		ctx.drawImage(bird[Bird_color - 1], 200 - R, this.cur_height - R, 2*R, 2*R);
+		ctx.restore();
+	}
+}
 
 function tube(height_bottom, x)
 {
 	this.x = x;
 	this.height_bottom = height_bottom;
 	this.height_top = height_bottom - 200;
+
+	this.update = function()
+	{
+		this.x -= 2.5;
+		if(this.x == -200)
+		{
+			this.height_bottom = Math.floor(Math.random() * 200) + 400;
+			this.height_top = this.height_bottom - 200;
+			this.x = cv.width;
+		}
+	}
+
+	this.draw = function()
+	{
+		ctx.beginPath();
+		ctx.fillStyle = "#000000";	//black color
+		//top of tube
+		ctx.fillRect(this.x, this.height_bottom, 100, 2*black_width + top_width);
+		ctx.fillRect(this.x, this.height_top - 2*black_width - top_width, 100, top_width + 2*black_width);
+		//below of tube
+		ctx.fillRect(this.x + 5, this.height_bottom + top_width + 2*black_width, 90, cv.height - this.height_bottom - 2*black_width - top_width);
+		ctx.fillRect(this.x + 5, 0, 90, this.height_top - top_width - 2*black_width);
+		
+		ctx.fillStyle = "#009900";	//green3 color
+		ctx.fillRect(this.x + black_width, this.height_bottom + black_width, 100 - 2*black_width, top_width);
+		ctx.fillRect(this.x + black_width, this.height_top - top_width - black_width , 100 - 2*black_width, top_width);
+
+		ctx.fillRect(this.x + black_width + 5, this.height_bottom + 2*black_width + top_width, 100 - 10 - 2*black_width, cv.height - this.height_bottom - black_width - top_width);
+		ctx.fillRect(this.x + black_width + 5, 0, 100 - 10 - 2*black_width, this.height_top - 2*black_width - top_width);
+
+		ctx.fillStyle = "#00ff00";	//green2 color
+		ctx.fillRect(this.x + black_width, this.height_bottom + black_width, 10, top_width);
+		ctx.fillRect(this.x + black_width, this.height_top - top_width - black_width, 10, top_width);
+
+		ctx.fillRect(this.x + black_width + 5, this.height_bottom + top_width + 2*black_width, 10, cv.height - this.height_bottom - top_width - black_width);
+		ctx.fillRect(this.x + black_width + 5, 0, 10, this.height_top - top_width - 2*black_width);
+
+		ctx.fillStyle = "#00cc00";	//green1 color
+		ctx.fillRect(this.x + black_width + 10, this.height_bottom + black_width, 10, top_width);
+		ctx.fillRect(this.x + black_width + 10, this.height_top - top_width - black_width, 10, top_width);
+
+		ctx.fillRect(this.x + black_width + 5 + 10, this.height_bottom + top_width + 2*black_width, 10, cv.height - this.height_bottom - top_width - black_width);
+		ctx.fillRect(this.x + black_width + 5 + 10, 0, 10, this.height_top - top_width - 2*black_width);
+		ctx.stroke();
+	}
 }
-
-var tube1 = new tube(Math.floor(Math.random() * 200 + 400), 400);
-var tube2 = new tube(Math.floor(Math.random() * 200 + 400), 600);
-var tube3 = new tube(Math.floor(Math.random() * 200 + 400), 800);
-var tube4 = new tube(Math.floor(Math.random() * 200 + 400), 1000);
-var tube5 = new tube(Math.floor(Math.random() * 200 + 400), 1200);
-
-obstacle.push(tube1);
-obstacle.push(tube2);
-obstacle.push(tube3);
-obstacle.push(tube4);
-obstacle.push(tube5);
 
 function tree(x, bush_width)
 {
 	this.x = x;
 	this.bush_width = bush_width;
 	this.bush_height = bush_width / 2;
+
+	this.update = function()
+	{
+		this.x -= 2.5;
+		if(this.x <= -this.bush_width)
+		{
+			this.x = Math.floor(Math.random() * 100) + 800;
+			this.bush_width = Math.floor(Math.random() * 50) + 100;
+			this.bush_height = this.bush_width / 2;
+		}
+	}
+
+	this.draw = function()
+	{
+		ctx.drawImage(_bush, this.x, 700 - black_width / 2 - this.bush_height, this.bush_width, this.bush_height);
+	}
 }
 
-var bush1 = new tree(100, Math.floor(Math.random() * 50 + 100));
-var bush2 = new tree(400, Math.floor(Math.random() * 50 + 100));
-var bush3 = new tree(700, Math.floor(Math.random() * 50 + 100));
+var fBird = new Bird(400);
 
-var bush = [];
+var obstacle = new Array();
+for (var i = 0; i < 5; i++)
+{
+	obstacle[i] = new tube(Math.floor(Math.random() * 200) + 400, 200 * (i + 2));
+}
 
-bush.push(bush1);
-bush.push(bush2);
-bush.push(bush3);
+var bush = new Array();
+for (var i = 0; i < 3; i++)
+{
+	bush[i] = new tree(100 + i * 300, Math.floor(Math.random() * 50) + 100);
+}
 
 window.onload = function init()
 {
-	drawBird(fBird);
-	drawThings(obstacle, bush);
+	fBird.draw();
+	drawHorizontalMotion();
+	scoreDisplay();
 }
 
-function drawBird(fBird)
+function drawHorizontalMotion()
 {
-	ctx.clearRect(0, 0, width, height);
-	ctx.save();
-	ctx.translate(200, fBird.cur_height);
-	ctx.rotate(Math.atan(2*t - fBird.velocity_up) * (fBird.cur_height - (fBird.height - 100))/(800 - fBird.height + 100));
-	ctx.translate(-200, -fBird.cur_height);
-	ctx.drawImage(bird, 200 - R, fBird.cur_height - R, 2*R, 2*R);
-	ctx.restore();
-}
-
-function drawThings(obstacle, bush)
-{
-	ctx.beginPath();
+	//display cloud
 	ctx.drawImage(cloud, 10, 100, 150, 150);
 	ctx.drawImage(cloud, 250, 300, 150, 150);
 	ctx.drawImage(cloud, 360, 100, 150, 150);
 	ctx.drawImage(cloud, 600, 150, 150, 150);
-	
-	ctx.beginPath();
+
 	for (var i = obstacle.length - 1; i >= 0; i--)
-	{
-		ctx.fillStyle = "#000000";	//black color
-		//top of tube
-		ctx.fillRect(obstacle[i].x, obstacle[i].height_bottom, 100, 2*black_width + top_width);
-		ctx.fillRect(obstacle[i].x, obstacle[i].height_top - 2*black_width - top_width, 100, top_width + 2*black_width);
-		//below of tube
-		ctx.fillRect(obstacle[i].x + 5, obstacle[i].height_bottom + top_width + 2*black_width, 90, height - obstacle[i].height_bottom - 2*black_width - top_width);
-		ctx.fillRect(obstacle[i].x + 5, 0, 90, obstacle[i].height_top - top_width - 2*black_width);
-		
-		ctx.fillStyle = "#009900";	//green3 color
-		ctx.fillRect(obstacle[i].x + black_width, obstacle[i].height_bottom + black_width, 100 - 2*black_width, top_width);
-		ctx.fillRect(obstacle[i].x + black_width, obstacle[i].height_top - top_width - black_width , 100 - 2*black_width, top_width);
+		obstacle[i].draw();
 
-		ctx.fillRect(obstacle[i].x + black_width + 5, obstacle[i].height_bottom + 2*black_width + top_width, 100 - 10 - 2*black_width, height - obstacle[i].height_bottom - black_width - top_width);
-		ctx.fillRect(obstacle[i].x + black_width + 5, 0, 100 - 10 - 2*black_width, obstacle[i].height_top - 2*black_width - top_width);
+	for (var i = bush.length - 1; i >= 0; i--)
+		bush[i].draw();
 
-		ctx.fillStyle = "#00ff00";	//green2 color
-		ctx.fillRect(obstacle[i].x + black_width, obstacle[i].height_bottom + black_width, 10, top_width);
-		ctx.fillRect(obstacle[i].x + black_width, obstacle[i].height_top - top_width - black_width, 10, top_width);
-
-		ctx.fillRect(obstacle[i].x + black_width + 5, obstacle[i].height_bottom + top_width + 2*black_width, 10, height - obstacle[i].height_bottom - top_width - black_width);
-		ctx.fillRect(obstacle[i].x + black_width + 5, 0, 10, obstacle[i].height_top - top_width - 2*black_width);
-
-		ctx.fillStyle = "#00cc00";	//green1 color
-		ctx.fillRect(obstacle[i].x + black_width + 10, obstacle[i].height_bottom + black_width, 10, top_width);
-		ctx.fillRect(obstacle[i].x + black_width + 10, obstacle[i].height_top - top_width - black_width, 10, top_width);
-
-		ctx.fillRect(obstacle[i].x + black_width + 5 + 10, obstacle[i].height_bottom + top_width + 2*black_width, 10, height - obstacle[i].height_bottom - top_width - black_width);
-		ctx.fillRect(obstacle[i].x + black_width + 5 + 10, 0, 10, obstacle[i].height_top - top_width - 2*black_width);
-	}
+	//display ground
+	ctx.beginPath();
+	ctx.fillStyle = "#009900";
+	ctx.fillRect(0, 700 + black_width / 2, cv.width, cv.height - 700 - black_width / 2);
 	ctx.stroke();
-
-	for (var i = bush.length - 1; i >= 0; i--) {
-		ctx.drawImage(bushh, bush[i].x, 700 - black_width / 2 - bush[i].bush_height, bush[i].bush_width, bush[i].bush_height);
-	}
-
 	ctx.beginPath();
 	ctx.strokeStyle = "#000000";
 	ctx.moveTo(0, 700);
-	ctx.lineTo(width, 700);
+	ctx.lineTo(cv.width, 700);
 	ctx.lineWidth = black_width;
 	ctx.stroke();
+}
 
-	ctx.beginPath();
-	ctx.fillStyle = "#009900";
-	ctx.fillRect(0, 700 + black_width / 2, width, height - 700 - black_width / 2);
-	ctx.stroke();
-
+function scoreDisplay()
+{
+	//display score
 	var tmp_score = score;
+	var reverse = 0;
 	var pos = 0;
+	var count = 0;
 	var score_display = [];
-	while(tmp_score >= 1)
+	while(tmp_score != 0)
 	{
-		score_display.push(num[tmp_score % 10]);
+		reverse *= 10;
+		reverse += tmp_score % 10;
 		tmp_score /= 10;
 		tmp_score = Math.floor(tmp_score);
-		++pos;
+		++count;
 	}
 
-	pos = width / 2 - 0.5 * pos * img0.width;
+	pos = cv.width / 2 - 0.5 * count * num[0].width;
 
-	for (var i = score_display.length - 1; i >= 0; i--)
+	for (var i = count; i > 0; i--)
 	{
-		ctx.drawImage(score_display[i], pos, 40, img0.width, img0.height);
-		pos += img0.width;
+		ctx.drawImage(num[reverse % 10], pos, 40, num[0].width, num[0].height);
+		reverse /= 10;
+		reverse = Math.floor(reverse);
+		pos += num[0].width;
 	}
 
-	if(score_display.length == 0)
-		ctx.drawImage(img0, width / 2 - img0.width * 0.5, 40, img0.width, img0.height);
+	if(count == 0)
+		ctx.drawImage(num[0], pos - num[0].width * 0.5, 40, num[0].width, num[0].height);
 }
 
 document.onkeydown = function(envent)
@@ -202,68 +215,71 @@ document.onkeydown = function(envent)
 	if(envent.keyCode == 32 && running)
 	{
 		t = 1;
-		fBird.cur_velocity = fBird.velocity_up;
 		fBird.height = fBird.cur_height;
 	}
 }
 
 function reset()
 {
-	ctx.clearRect(0, 0, width, height);
-	begin = false;
+	ctx.clearRect(0, 0, cv.width, cv.height);
+	start = false;
 	running = false;
 	fBird.height = 400;
 	fBird.cur_height = 300;
 	fBird.velocity_up = 20;
-	fBird.cur_velocity = 20;
-	fBird.gravity = 2;
 	score = 0;
-	collumn = 1;
+	next_tube = 1;
+	Bird_color = Math.floor(Math.random() * 3) + 1;
 	t = 10;
 
 	for (var i = obstacle.length - 1; i >= 0; i--)
 	{
 		obstacle[i].x = 200 * (i + 2);
-		obstacle[i].height_bottom = Math.floor(Math.random() * 200 + 400);
+		obstacle[i].height_bottom = Math.floor(Math.random() * 200) + 400;
 		obstacle[i].height_top = obstacle[i].height_bottom - 200;
 	}
 
 	for (var i = bush.length - 1; i >= 0; i--)
 	{
 		bush[i].x = 1000 - 300 * (i + 1);
-		bush[i].bush_width = Math.floor(Math.random() * 50 + 100);
+		bush[i].bush_width = Math.floor(Math.random() * 50) + 100;
 		bush[i].bush_height = bush[i].bush_width / 2;
 	}
 
-	drawBird(fBird);
-	drawThings(obstacle, bush);
+	fBird.draw();
+	drawHorizontalMotion();
+	scoreDisplay();
 }
 
 function jump()
 {
-	if(begin == false)
+	if(start == false)
 	{
-		begin = true;
+		start = true;
 		running = true;
 
 		frame();
 
 		function frame()
 		{
-			//console.log(fBird.cur_height);
-			update(fBird, t);
-			update2(obstacle, bush);
-			drawBird(fBird);
-			drawThings(obstacle, bush);
+			fBird.update();
+			for (var i = obstacle.length - 1; i >= 0; i--)
+				obstacle[i].update();
+			for (var i = bush.length - 1; i >= 0; i--)
+				bush[i].update();
+			
+			fBird.draw();
+			drawHorizontalMotion();
+			scoreDisplay();
 
-			if(obstacle[collumn - 1].x + 50 == 200)
+			if(obstacle[next_tube - 1].x + 50 == 200)
 				++score;
 
-			if(obstacle[collumn - 1].x + 100 + R == 200)
-				++collumn;
+			if(obstacle[next_tube - 1].x + 100 + R == 200)
+				++next_tube;
 
-			if(collumn > obstacle.length)
-				collumn = 1;
+			if(next_tube > obstacle.length)
+				next_tube = 1;
 			t += 0.6;
 
 			if(GameOver() == false)
@@ -279,9 +295,10 @@ function jump()
 
 		function EndGame()
 		{
-			ctx.clearRect(0, 0, width, height);
-			drawBird(fBird);
-			drawThings(obstacle, bush);
+			ctx.clearRect(0, 0, cv.width, cv.height);
+			fBird.draw();
+			drawHorizontalMotion();
+			scoreDisplay();
 			ctx.beginPath();
 			ctx.arc(200, fBird.cur_height, wave_R, 0, 2 * Math.PI);
 			ctx.fillStyle = "#ffffff";
@@ -297,21 +314,23 @@ function jump()
 
 		function fallDown()
 		{
-			drawBird(fBird);
-			drawThings(obstacle, bush);
+			fBird.draw();
+			drawHorizontalMotion();
+			scoreDisplay();
 			t += 0.6;
 
-			update(fBird, t);
+			fBird.update();
 
-			if(200 >= obstacle[collumn - 1].x && 200 <= obstacle[collumn - 1].x + 100)
+			if(200 >= obstacle[next_tube - 1].x && 200 <= obstacle[next_tube - 1].x + 100)
 			{
-				if(fBird.cur_height < obstacle[collumn - 1].height_bottom - R)
+				if(fBird.cur_height < obstacle[next_tube - 1].height_bottom - R)
 				{
 					requestAnimationFrame(fallDown);
 				}else{
-					ctx.clearRect(0, 0, width, height);
-					drawThings(obstacle, bush);
-					ctx.drawImage(rip, 200 - R, obstacle[collumn - 1].height_bottom - 50, 2 * R, 50);
+					ctx.clearRect(0, 0, cv.width, cv.height);
+					drawHorizontalMotion();
+					scoreDisplay();
+					ctx.drawImage(rip, 200 - R, obstacle[next_tube - 1].height_bottom - 50, 2 * R, 50);
 				}
 			}
 			else
@@ -322,8 +341,9 @@ function jump()
 				}
 				else
 				{
-					ctx.clearRect(0, 0, width, height);
-					drawThings(obstacle, bush);
+					ctx.clearRect(0, 0, cv.width, cv.height);
+					drawHorizontalMotion();
+					scoreDisplay();
 					ctx.drawImage(rip, 200 - R, 700 - 50, 2 * R, 50 - black_width / 2);
 					t = 0;
 				}
@@ -332,104 +352,72 @@ function jump()
 
 		function GameOver()
 		{
-			if(fBird.cur_height >= obstacle[collumn - 1].height_bottom)
+			if(fBird.cur_height >= obstacle[next_tube - 1].height_bottom)
 			{
-				if(fBird.cur_height > obstacle[collumn - 1].height_bottom + 2*black_width + top_width)
+				if(fBird.cur_height > obstacle[next_tube - 1].height_bottom + 2*black_width + top_width)
 				{
 					if(fBird.cur_height >= 700 - R)
 						return true;
 
-					if(200 + R >= obstacle[collumn - 1].x + 5)
+					if(200 + R >= obstacle[next_tube - 1].x + 5)
 						return true;
 				}else{
-					if(200 + R >= obstacle[collumn - 1].x)
+					if(200 + R >= obstacle[next_tube - 1].x)
 						return true;
 
-					var dis = (fBird.cur_height - obstacle[collumn - 1].height_bottom)**2 + (obstacle[collumn - 1].x - 200)**2;
+					var dis = (fBird.cur_height - obstacle[next_tube - 1].height_bottom)**2 + (obstacle[next_tube - 1].x - 200)**2;
 					if(dis <= R**2)
 						return true;
 
-					dis = (fBird.cur_height - (obstacle[collumn - 1].height_bottom + 2*black_width + top_width))**2 + (obstacle[collumn - 1].x - 200)**2;
+					dis = (fBird.cur_height - (obstacle[next_tube - 1].height_bottom + 2*black_width + top_width))**2 + (obstacle[next_tube - 1].x - 200)**2;
 					if(dis <= R**2)
 						return true;
 				}
 			}else{
-				if(fBird.cur_height <= obstacle[collumn - 1].height_top)
+				if(fBird.cur_height <= obstacle[next_tube - 1].height_top)
 				{
-					if(fBird.cur_height < obstacle[collumn - 1].height_top - 2*black_width - top_width)
+					if(fBird.cur_height < obstacle[next_tube - 1].height_top - 2*black_width - top_width)
 					{
 						if(fBird.cur_height <= R)
 							return true;
 
-						if(200 + R >= obstacle[collumn - 1].x + 5)
+						if(200 + R >= obstacle[next_tube - 1].x + 5)
 							return true;
 					}else{
-						if(200 + R >= obstacle[collumn - 1].x)
+						if(200 + R >= obstacle[next_tube - 1].x)
 							return true;
 
-						var dis = (fBird.cur_height - obstacle[collumn - 1].height_top)**2 + (obstacle[collumn - 1].x - 200)**2;
+						var dis = (fBird.cur_height - obstacle[next_tube - 1].height_top)**2 + (obstacle[next_tube - 1].x - 200)**2;
 						if(dis <= R**2)
 							return true;
 
-						dis = (fBird.cur_height - (obstacle[collumn - 1].height_top + 2*black_width + top_width))**2 + (obstacle[collumn - 1].x - 200)**2;
+						dis = (fBird.cur_height - (obstacle[next_tube - 1].height_top + 2*black_width + top_width))**2 + (obstacle[next_tube - 1].x - 200)**2;
 						if(dis <= R**2)
 							return true;
 					}
 				}else{
-					if(200 >= obstacle[collumn - 1].x && 200 <= obstacle[collumn - 1].x + 100)
+					if(200 >= obstacle[next_tube - 1].x && 200 <= obstacle[next_tube - 1].x + 100)
 					{
-						if(fBird.cur_height + R >= obstacle[collumn - 1].height_bottom || fBird.cur_height - 10 <= obstacle[collumn - 1].height_top)
+						if(fBird.cur_height + R >= obstacle[next_tube - 1].height_bottom || fBird.cur_height - 10 <= obstacle[next_tube - 1].height_top)
 							return true;
 
-						var dis = (fBird.cur_height - obstacle[collumn - 1].height_top)**2 + (obstacle[collumn - 1].x + 100 - 200)**2;
+						var dis = (fBird.cur_height - obstacle[next_tube - 1].height_top)**2 + (obstacle[next_tube - 1].x + 100 - 200)**2;
 						if(dis <= R**2)
 							return true;
 
-						dis = (fBird.cur_height - obstacle[collumn - 1].height_bottom)**2 + (obstacle[collumn - 1].x + 100 - 200)**2;
+						dis = (fBird.cur_height - obstacle[next_tube - 1].height_bottom)**2 + (obstacle[next_tube - 1].x + 100 - 200)**2;
 						if(dis <= R**2)
 							return true;
 					}
 
-					if(200 - R < obstacle[collumn - 1].x + 100)
-						var dis = (fBird.cur_height - obstacle[collumn - 1].height_bottom)**2 + (obstacle[collumn - 1].x + 100 - 200)**2;
+					if(200 - R < obstacle[next_tube - 1].x + 100)
+						var dis = (fBird.cur_height - obstacle[next_tube - 1].height_bottom)**2 + (obstacle[next_tube - 1].x + 100 - 200)**2;
 						if(dis <= R**2)
 							return true;
 				}
 			}
 
 			return false;
-		}
-
-		function update(fBird)
-		{
-			fBird.cur_height = fBird.height - fBird.velocity_up * t + 0.5 * fBird.gravity * t**2;
-			fBird.cur_velocity = fBird.velocity_up - fBird.gravity * t;
-		}
-
-		function update2(obstacle, bush)
-		{
-			for (var i = obstacle.length - 1; i >= 0; i--)
-			{
-				obstacle[i].x -= 2.5;
-
-				if(obstacle[i].x == -200)
-				{
-					obstacle[i].height = Math.floor(Math.random() * 200 + 400);
-					obstacle[i].x = width;
-				}
-			}
-
-			for (var i = bush.length - 1; i >= 0; i--) {
-				bush[i].x -= 2.5;
-
-				if(bush[i].x <= -bush[i].bush_width)
-				{
-					bush[i].x = Math.floor(Math.random() * 100 + 800);
-					bush[i].bush_width = Math.floor(Math.random() * 50 + 100);
-					bush[i].bush_height = bush[i].bush_width / 2;
-				}
-
-			}
 		}
 	}
 }

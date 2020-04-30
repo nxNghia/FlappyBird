@@ -14,7 +14,7 @@ const _bush = new Image();
 const rip = new Image();
 const bird = new Array();
 var num = new Array();
-var Bird_color = Math.floor(Math.random()*3) + 1;
+var Bird_color;
 title.src = "image/title.png";
 cloud.src = "image/cloud.png";
 _bush.src = "image/bush.png";
@@ -210,6 +210,7 @@ function gameFunction()
 
 	this.init = function()
 	{
+		console.log("init");
 		this.t = 10;
 		Bird_color = Math.floor(Math.random() * 3) + 1;
 		this.score = 0;
@@ -234,11 +235,10 @@ function gameFunction()
 			bush[i].bush_height = bush[i].bush_width / 2;
 		}
 
-		fBird.draw(self.t, 200, bird[tmp_color - 1]);
+		fBird.draw(self.t, 200, bird[Bird_color - 1]);
 		self.drawHorizontalMotion();
 		this.scoreDisplay();
 	}
-
 
 	this.drawHorizontalMotion = function()
 	{

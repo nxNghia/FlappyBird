@@ -72,7 +72,7 @@ function Bird(height, R)
 					return true;
 
 				var dis = (this.cur_height - object.height_bottom)**2 + (object.x - 200)**2;
-				if(dis <= R**2)
+				if(dis <= this.R**2)
 					return true;
 
 				dis = (this.cur_height - (object.height_bottom + 2*black_width + top_width))**2 + (object.x - 200)**2;
@@ -210,7 +210,6 @@ function gameFunction()
 
 	this.init = function()
 	{
-		console.log("init");
 		this.t = 10;
 		Bird_color = Math.floor(Math.random() * 3) + 1;
 		this.score = 0;
